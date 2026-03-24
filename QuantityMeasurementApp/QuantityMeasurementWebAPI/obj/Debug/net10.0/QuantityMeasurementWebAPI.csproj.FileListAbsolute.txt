@@ -170,8 +170,8 @@ C:/Users/admin/Downloads/QuantityMeasurementApp/QuantityMeasurementWebAPI/obj/De
 C:/Users/admin/Downloads/QuantityMeasurementApp/QuantityMeasurementWebAPI/obj/Debug/net10.0/QuantityMeasurementWebAPI.genruntimeconfig.cache
 C:/Users/admin/Downloads/QuantityMeasurementApp/QuantityMeasurementWebAPI/obj/Debug/net10.0/ref/QuantityMeasurementWebAPI.dll
 /Users/arjunsingh/Documents/QuantityMeasurementApp/QuantityMeasurementApp/QuantityMeasurementWebAPI/bin/Debug/net10.0/appsettings.Development.json
-/Users/arjunsingh/Documents/QuantityMeasurementApp/QuantityMeasurementApp/QuantityMeasurementWebAPI/bin/Debug/net10.0/QuantityMeasurementWebAPI.staticwebassets.endpoints.json
 /Users/arjunsingh/Documents/QuantityMeasurementApp/QuantityMeasurementApp/QuantityMeasurementWebAPI/bin/Debug/net10.0/appsettings.json
+/Users/arjunsingh/Documents/QuantityMeasurementApp/QuantityMeasurementApp/QuantityMeasurementWebAPI/bin/Debug/net10.0/QuantityMeasurementWebAPI.staticwebassets.endpoints.json
 /Users/arjunsingh/Documents/QuantityMeasurementApp/QuantityMeasurementApp/QuantityMeasurementWebAPI/bin/Debug/net10.0/QuantityMeasurementWebAPI
 /Users/arjunsingh/Documents/QuantityMeasurementApp/QuantityMeasurementApp/QuantityMeasurementWebAPI/bin/Debug/net10.0/QuantityMeasurementWebAPI.deps.json
 /Users/arjunsingh/Documents/QuantityMeasurementApp/QuantityMeasurementApp/QuantityMeasurementWebAPI/bin/Debug/net10.0/QuantityMeasurementWebAPI.runtimeconfig.json
