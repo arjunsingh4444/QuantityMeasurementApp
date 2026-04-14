@@ -17,6 +17,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Controllers
 builder.Services.AddControllers();
 
+//jwt configuration
+
+var jwtKey = builder.Configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_KEY");
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? Environment.GetEnvironmentVariable("JWT_ISSUER");
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
 // JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -32,10 +38,10 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
           RoleClaimType = ClaimTypes.Role,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+            Encoding.UTF8.GetBytes(jwtKey!)
         )
     };
 });
@@ -71,9 +77,12 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+//connection string
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+                       ?? Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
 // database
 builder.Services.AddDbContext<QuantityMeasurementDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseNpgsql(connectionString)
 );
 
 //dependency injection
@@ -87,14 +96,27 @@ builder.Services.AddScoped<QuantityMeasurementCacheRepository>();
 // Services
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementServiceImpl>();
-builder.Services.AddHostedService<RedisSyncBackgroundService>();
 
-// Redis cache
-builder.Services.AddStackExchangeRedisCache(options =>
+// Redis connection
+var redisConnection = builder.Configuration["Redis:Connection"] 
+                      ?? Environment.GetEnvironmentVariable("REDIS_CONNECTION");
+
+//  Only configure Redis if available
+if (!string.IsNullOrEmpty(redisConnection))
 {
-    options.Configuration = "localhost:6379";
-    options.InstanceName = "QuantityMeasurement_";
-});
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = redisConnection;
+        options.InstanceName = "QuantityMeasurement_";
+    });
+
+    // Only run background service if Redis exists
+    builder.Services.AddHostedService<RedisSyncBackgroundService>();
+}
+else
+{
+    Console.WriteLine(" Redis not configured. Skipping Redis + BackgroundService.");
+}
 //allow cors 
 builder.Services.AddCors(options =>
 {
@@ -102,21 +124,32 @@ builder.Services.AddCors(options =>
 });
 
 
+
+
+//ports
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.Services.Configure<HostOptions>(options =>
+{
+    options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+});
 var app = builder.Build();
+app.Urls.Add($"http://*:{port}");
 app.UseCors("AllowReact");
 
 // Middleware
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "QuantityMeasurement API V1");
     });
-}
+
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
